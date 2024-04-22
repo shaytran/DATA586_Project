@@ -73,20 +73,22 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
     """ Compute the average precision, given the recall and precision curves.
     Source: https://github.com/rafaelpadilla/Object-Detection-Metrics.
     # Arguments
-        tp:    True positives (list).
-        conf:  Objectness value from 0-1 (list).
-        pred_cls: Predicted object classes (list).
-        target_cls: True object classes (list).
+        tp:    True positives (tensor).
+        conf:  Objectness value from 0-1 (tensor).
+        pred_cls: Predicted object classes (tensor).
+        target_cls: True object classes (tensor).
     # Returns
         The average precision as computed in py-faster-rcnn.
     """
 
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    
     # Sort by objectness
     i = torch.argsort(-conf)
     tp, conf, pred_cls = tp[i], conf[i], pred_cls[i]
 
     # Find unique classes
-    unique_classes = torch.unique(target_cls)   
+    unique_classes = torch.unique(target_cls)
 
     # Create Precision-Recall curve and compute AP for each class
     ap, p, r = [], [], []
@@ -103,48 +105,57 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
             p.append(0)
         else:
             # Accumulate FPs and TPs
-            fpc = torch.cumsum(1 - tp[i],-1)
-            tpc = torch.cumsum(tp[i],-1)
+            fpc = torch.cumsum(1 - tp[i], -1)
+            tpc = torch.cumsum(tp[i], -1)
 
             # Recall
             recall_curve = tpc / (n_gt + 1e-16)
-            r.append(recall_curve[-1])
+            r.append(recall_curve[-1].item())  # Convert to Python scalar
 
             # Precision
             precision_curve = tpc / (tpc + fpc)
-            p.append(precision_curve[-1])
+            p.append(precision_curve[-1].item())  # Convert to Python scalar
 
             # AP from recall-precision curve
-            ap.append(compute_ap(recall_curve, precision_curve))
+            ap_curve = compute_ap(recall_curve, precision_curve)
+            ap.append(ap_curve)  # Ensure compute_ap returns a tensor and convert to Python scalar
+
+    # Convert lists to tensors
+    p, r, ap = torch.tensor(p), torch.tensor(r), torch.tensor(ap)
+    
+    # Ensure the tensors are on the same device as the input tensors
+    device = tp.device
+    p, r, ap = p.to(device), r.to(device), ap.to(device)
 
     # Compute F1 score (harmonic mean of precision and recall)
-    p, r, ap = torch.tensor(np.array(p)), torch.tensor(np.array(r)), torch.tensor(np.array(ap))
     f1 = 2 * p * r / (p + r + 1e-16)
 
     return p, r, ap, f1, unique_classes
 
 def compute_ap(recall, precision):
-    """ Compute the average precision, given the recall and precision curves.
-    Code originally from https://github.com/rbgirshick/py-faster-rcnn.
+    """Compute the average precision, using PyTorch, given the recall and precision curves.
+    Adapted from code originally in https://github.com/rbgirshick/py-faster-rcnn for PyTorch compatibility.
     # Arguments
-        recall:    The recall curve (list).
-        precision: The precision curve (list).
+        recall:    The recall curve (Tensor).
+        precision: The precision curve (Tensor).
     # Returns
         The average precision as computed in py-faster-rcnn.
     """
     # correct AP calculation
     # first append sentinel values at the end
-    mrec = np.concatenate(([0.0], recall, [1.0]))
-    mpre = np.concatenate(([0.0], precision, [0.0]))
+    mrec = torch.cat((torch.tensor([0.0], device=recall.device), recall, torch.tensor([1.0], device=recall.device)))
+    mpre = torch.cat((torch.tensor([0.0], device=precision.device), precision, torch.tensor([0.0], device=precision.device)))
 
     # compute the precision envelope
-    for i in range(mpre.size - 1, 0, -1):
-        mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
+    for i in range(mpre.size(0) - 1, 0, -1):
+        mpre[i - 1] = torch.maximum(mpre[i - 1], mpre[i])
 
     # to calculate area under PR curve, look for points
     # where X axis (recall) changes value
-    i = np.where(mrec[1:] != mrec[:-1])[0]
+    i = torch.where(mrec[1:] != mrec[:-1])[0]
 
     # and sum (\Delta recall) * prec
-    ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
-    return ap
+    ap = torch.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
+    return ap.item()  # Convert to Python scalar for compatibility with list append operations
+
+
