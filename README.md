@@ -10,7 +10,6 @@ Authors: [Shayla Tran](https://github.com/shaytran), [Kyle Deng](https://github.
 2. [Methodology](#methodology)
 3. [Results & Discussion](#results--discussion)
 4. [Conclusion](#conclusion)
-5. [References](#references)
 
 ## Introduction
 The integration of deep learning, particularly through Region-based Convolutional Neural Networks (R-CNNs) like the Faster R-CNN, has revolutionized medical imaging by enabling precise localization and classification of blood cells. This method overcomes traditional limitations by utilizing a region proposal network (RPN) that enhances the speed and accuracy of the model, crucial for effective diagnostics in hematological settings. By adapting and evaluating a pre-trained Faster R-CNN model on the BCCD dataset[^1], this study explores and demonstrates the efficacy and accuracy of our implemented R-CNN model on blood classification.
@@ -27,5 +26,4 @@ The integration of deep learning, particularly through Region-based Convolutiona
 ## Conclusion
 []
 
-## References
 [^1]: Biryukov. (2021). Blood cells classification. Retrieved from https://www.kaggle.com/code/valentinbiryukov/blood-cells-classification 
