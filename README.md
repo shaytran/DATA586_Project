@@ -96,7 +96,7 @@ Due to hardware constraints, we conducted limited hyperparameter tuning on three
 
 The final model, utilizing SGD with specific parameters, underwent 10 epochs of training, resulting in an mAP of 0.874 on the test set. Our model achieved an mAP of 0.874, with AP scores of 0.8064, 0.9633, and 0.8533 for WBCs, RBCs, and platelets, respectively.
 
-![Sample prediction@0.75 from the trained faster R-CNN model](img/cell.png)
+![Sample prediction@0.75 from the trained faster R-CNN model](img/cells.png)
 
 *Figure 3 - The model’s confidence on the object inside the box belonging to its predicted label is above 0.75, which means the model makes more predictions than what was illustrated in the image. This is only one image out of the 72 images in the test set. Serves more as a diagnostic tool to ensure that the model is performing as desired rather than measuring the model's overall performance.
 
