@@ -98,7 +98,7 @@ The final model, utilizing SGD with specific parameters, underwent 10 epochs of 
 
 ![Sample prediction@0.75 from the trained faster R-CNN model](img/cells.png)
 
-*Figure 3 - The model’s confidence on the object inside the box belonging to its predicted label is above 0.75, which means the model makes more predictions than what was illustrated in the image. This is only one image out of the 72 images in the test set. Serves more as a diagnostic tool to ensure that the model is performing as desired rather than measuring the model's overall performance.
+*Figure 3 - The model’s confidence on the object inside the box belonging to its predicted label is above 0.75, which means the model makes more predictions than what was illustrated in the image. This is only one image out of the 72 images in the test set. Serves more as a diagnostic tool to ensure that the model is performing as desired rather than measuring the model's overall performance.*
 
 While the model showed reasonable performance, there is room for improvement in RBC and platelet classification. Future work could explore advanced architectures and data augmentation strategies to enhance accuracy.
 
